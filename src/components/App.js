@@ -1,26 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+import api from "../api/contacts";
 import "./App.css";
 import Header from "./Header";
 import AddContact from "./AddContact";
 import ContactList from "./ContactList";
+import ContactDetail from "./ContactDetail";
+import EditContact from "./EditContact";
+import { ContactsCrudContextProvider } from "../context/ContactsCrudContext";
 
 function App() {
   const LOCAL_STORAGE_KEY = "contacts";
-  const [contacts, setContacts] = useState(() => {
-    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
-  });
+  const [contacts, setContacts] = useState([]);
 
-  const addContactHandler = (contact) => {
-    setContacts([...contacts, { id: uuidv4(), ...contact }]);
-  };
+  // useEffect(() => {
+  //   const getAllContacts = async () => {
+  //     const allContacts = await retriveContacts();
+  //     if (allContacts) setContacts(allContacts);
+  //   };
+  //   getAllContacts();
+  // }, []);
 
-  const removeContactHandler = (id) => {
-    const newContactList = contacts.filter((contact) => {
-      return contact.id !== id;
-    });
-    setContacts(newContactList);
-  };
+  // const [contacts, setContacts] = useState(() => {
+  //   return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+  // });
+
   // useEffect(() => {
   //   const retriveContacts = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
   //   if (retriveContacts) setContacts(retriveContacts);
@@ -44,9 +49,19 @@ function App() {
 
   return (
     <div className="ui container">
-      <Header />
-      <AddContact addContactHandler={addContactHandler} />
-      <ContactList contacts={contacts} getContactId={removeContactHandler} />
+      {/* <Header /> */}
+      <Router>
+        <ContactsCrudContextProvider>
+          <Routes>
+            <Route path="/" element={<ContactList />} />
+            <Route path="/add" element={<AddContact />} />
+            <Route path="/contact/:id" element={<ContactDetail />} />
+            <Route path="/edit" element={<EditContact />} />
+          </Routes>
+        </ContactsCrudContextProvider>
+        {/* <AddContact addContactHandler={addContactHandler} />
+        <ContactList contacts={contacts} getContactId={removeContactHandler} /> */}
+      </Router>
     </div>
   );
 }
